@@ -26,7 +26,7 @@ cameraIntrinsics = cameraIntrinsics(fxy_simulated,principalPoint,imageSize); % C
 
 % Create datasets from rosbag
 % [imageData, odomData,pose2D] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/StraightBag_202204151235.bag");
-[imageData, odomData,pose2D] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/CircleBag_202204211143.bag");
+[imageData, odomData,pose2D] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/onlab_round_20220511202953.bag");
 
 % Create a pose graph object
 pg = poseGraph3D;

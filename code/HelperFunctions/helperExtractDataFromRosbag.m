@@ -21,7 +21,14 @@ pose2D = {};
 
 % Grab all the image messages
 imgObjs = imgSel.readMessages;
+% Create waitbar
+f = waitbar(0,'1','Name','Preparing environment...',...
+    'CreateCancelBtn','setappdata(gcbf,''canceling'',1)');
 for i = 1:numel(imgObjs)
+    % Check for clicked Cancel button
+    if getappdata(f,'canceling')
+        break
+    end
     % Odom data is extracted from tf 
     if bagSel.canTransform('reference', 'Pioneer_p3dx', imgObjs{i}.Header.Stamp) % From odom frame to laser frame
         % ith odom reading is extracted at the time of the ith image
@@ -49,7 +56,10 @@ for i = 1:numel(imgObjs)
             lastT = T;
         end
     end
+    % Update waitbar and message
+    waitbar(i/numel(imgObjs),f,sprintf('%12.1f',(i/numel(imgObjs))*100))
 end
+delete(f)
 
 end
 

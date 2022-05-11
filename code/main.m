@@ -24,3 +24,9 @@ disp("----------------------------------------")
 disp("Running SLAM!")
 run("ApriltagSlam.m")
 disp("Excecution done!")
+
+% % Visualize the result poseGraph
+figure('Visible','on');
+show(pg);
+axis equal;
+title("The result of the Landmarkslam's posegraph");
