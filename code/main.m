@@ -30,3 +30,6 @@ figure('Visible','on');
 show(pg);
 axis equal;
 title("The result of the Landmarkslam's posegraph");
+
+% % Run Main Patroling algorithm
+run("mainPatrol.m")

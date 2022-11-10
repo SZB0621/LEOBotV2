@@ -1,4 +1,4 @@
-function [imageData, odomData,pose2D] = helperExtractDataFromRosbag(bagName)
+function [imageData, odomData,pose2D, detectionObjs] = helperExtractDataFromRosbag(bagName)
 %exampleHelperExtractDataFromRosbag Extract synchronized image and odometry
 %   data from a rosbag recorded on a Jackal UGV robot. ROS Toolbox license
 %   is required to use this function.
@@ -7,6 +7,7 @@ function [imageData, odomData,pose2D] = helperExtractDataFromRosbag(bagName)
 
 bagSel = rosbag(bagName);
 imgSel = bagSel.select('Topic','/image_raw/compressed'); % Image topic
+detectionSel = bagSel.select('Topic','/laser/detected_point'); % Sensor topic
 
 % Needed for computing change between SE(2) poses
 ss = stateSpaceSE2;
@@ -19,8 +20,9 @@ imageData = {};
 odomData = {};
 pose2D = {};
 
-% Grab all the image messages
+% Grab all the image messages and detectedPoints
 imgObjs = imgSel.readMessages;
+detectionObjs = detectionSel.readMessages;
 % Create waitbar
 f = waitbar(0,'1','Name','Preparing environment...',...
     'CreateCancelBtn','setappdata(gcbf,''canceling'',1)');
@@ -60,7 +62,6 @@ for i = 1:numel(imgObjs)
     waitbar(i/numel(imgObjs),f,sprintf('%12.1f',(i/numel(imgObjs))*100))
 end
 delete(f)
-
 end
 
 function [ToutSE3, poseSE2] = translateTransformStampedMsg(Tin)

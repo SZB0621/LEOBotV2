@@ -4,10 +4,13 @@
 % - Camera parameters
 % - Creates datasets from bag
 % - Creates and initializes poseGraph
+% - Creates occupancy grid map based on the scans from the robot's lasers
+
+% Add script path to matlab path
 
 % AprilTag settings
 tagFamily = "tag36h11";
-tagSize = 300; % mm
+tagSize = 240; % mm
 
 % Camera parameters
 imageSize = [480,640]; % [pixels] H, W
@@ -22,11 +25,15 @@ fxy_simulated = [simulatedFocalLength*(imageSize(2)/sensorSize(1)),...
 fxy_measured = [measuredFocalLengthFromBag(1)*(imageSize(2)/sensorSize(1)),...
                 measuredFocalLengthFromBag(2)*(imageSize(1)/sensorSize(2))]; % [pixels]
 
-cameraIntrinsics = cameraIntrinsics(fxy_simulated,principalPoint,imageSize); % Camera intrinsics parameters
+cameraIntrinsics = cameraIntrinsics(fxy_measured,principalPoint,imageSize); % Camera intrinsics parameters
+
+% Set map correction parameters
+mapTranslation = 2;
+mapScale = 10;
 
 % Create datasets from rosbag
-% [imageData, odomData,pose2D] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/StraightBag_202204151235.bag");
-[imageData, odomData,pose2D] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/onlab_round_20220511202953.bag");
+% [imageData, odomData,pose2D, detectionObjs] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/2022-11-01-17-31-39.bag");
+[imageData, odomData,pose2D, detectionObjs] = helperExtractDataFromRosbag("/home/ben/Documents/University/Diplomaterv/datasets/OwnDataset/2022-11-03-22-20-12.bag");
 
 % Create a pose graph object
 pg = poseGraph3D;
@@ -36,6 +43,17 @@ lastTform = [];
 lastPoseNodeId = 1;
 % Container.Map mapping between tag IDs and Node IDs
 tagToNodeIDMap = containers.Map('KeyType','double','ValueType','double');
+
+% Create occupancy grid map from laser measure
+map = binaryOccupancyMap(200,200,1,"grid");
+for i = 1:numel(detectionObjs)
+    setOccupancy(map,[(detectionObjs{i}.X+mapTranslation)*mapScale (detectionObjs{i}.Y+mapTranslation)*mapScale],1);
+end
+inflate(map, 2)
+figure(1)
+show(map)
+
+
 
 % Apply the fixed transformation between the robot frame and the vision
 % sensor

@@ -1,6 +1,6 @@
 % % This script performs Apriltag based SLAM and show the results
 
-
+figure(2)
 figure('Visible','on')
 for i = 1:numel(imageData)
     
